@@ -1,0 +1,112 @@
+# Kat Tsiatas
+# 11/16/2015
+# Programming Design Project
+
+# Mastermind
+
+# Mastermind is a great logic puzzle. It is a solved game. I actually had a
+# physical copy of Mastermind growing up and my brother and I would challenge
+# each other to a round or two. It is a very simple concept. Player one creates
+# a pattern based on different colors and locations. Then player two guesses
+# the pattern. Player one will give a few clues on whether or not player two
+# was on the right track. The clues are limited to saying if the guess included
+# data that a point was in the correct location with the correct color, or if a
+# point was just the correct color. The clues are given in no particular order
+# so if player two’s guess results in three correct color and location clues,
+# player two will not know which of his points were correct. This is a deduction
+# game. There is a guess limit. If player two cannot figure it out before the
+# limit, player one wins. If he does figure it out, player two wins.
+# In this particular version of Mastermind, I will use six different color
+# options for four different locations.
+
+# Psuedocode:
+
+# Generate random pattern
+# While not solved:
+#	get a guess
+#	compare guess to pattern for each item in guess
+#	if guess at location is wrong: result nothing
+#	if guess at location is correct color: result 1
+#	if guess at location is correct color/location: result 2
+#	print list of all results for each result numerically so it does
+#           not give away what corresponds to what
+#	if completely correct: say congratulations
+#	if wrong: inform how many guesses left and then increment guesses
+
+# Function Design:
+
+import random
+
+def createPattern(colorChoices):
+    # creates a random list of four colors
+    i = 0
+    pattern = []
+    while i < 4:
+        index = random.randint(0,5)
+        pattern.append(colorChoices[index])
+        i = i + 1
+    return pattern
+
+def getGuess(colorChoices):
+    # prompts user for a guess and puts it in a list
+    i = 0
+    guessList = []
+    counterList = ["first", "second", "third", "fourth"]
+    print("Your color choices are: ", colorChoices)
+    while i < 4:
+        print("What is your ", counterList[i], " guess?")
+        guess = input("Please type one of the colors.")
+        guessList.append(guess)
+        i = i + 1
+    print("Your guess: ", guessList)
+    return guessList
+
+def compare(guessList, pattern):
+    # compare guess and pattern at each list item and makes a list of results
+    # if guess at location is wrong: result nothing
+    # if guess at location is correct color: result 1
+    # if guess at location is correct color/location: result 2
+    # make sure two guess of red does not result in 1 twice if it only appears
+    #    once
+    resultList = []
+    halfCorrect = 1
+    allCorrect = 2
+    noneCorrect = 0
+    i = 0
+    while i < 4:
+        if guessList[i] in pattern:
+            if guessList[i] == pattern[i]:
+                resultList.append(allCorrect)
+            elif guessList.count(guessList[i]) > pattern.count(guessList[i]):
+                if pattern[pattern.index(guessList[i])] == guessList[i]:
+                    resultList.append(noneCorrect)
+                else:
+                    resultList.append(halfCorrect)                   
+            else:
+                resultList.append(halfCorrect)
+        else:
+            resultList.append(noneCorrect)
+        i = i + 1
+    return resultList
+
+
+def main():
+    colorChoices = ["red", "orange", "yellow", "green", "blue", "purple"]
+    numGuesses = 1
+    pattern = createPattern(colorChoices)
+    while numGuesses <= 10:
+        guessList = getGuess(colorChoices)
+        resultList = compare(guessList, pattern)
+        if resultList == [2,2,2,2]:
+            print("Congratulations, you guessed it in ", numGuesses, " times!")
+            numGuesses = 12
+        else:
+            resultList.sort()
+            print("Here's a clue.")
+            print("1 means a peg is the correct color.")
+            print("2 means a peg is the correct color in the correct location.")
+            print("Your clue: ", resultList)
+            print(10-numGuesses, " guesses left")
+            numGuesses = numGuesses + 1
+        if numGuesses == 11:
+            print("Nice try, you lose")
